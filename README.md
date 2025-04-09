@@ -9,7 +9,7 @@ conda activate mct_arg
 pip install -r requirements.txt
 ```
 ### Predict
-If you want to predict, please prepare the protein sequence file, the corresponding secondary structure file, and the RSA file of the sequence to be predicted, and then enter the following command in the terminal to get the result. You can use SCRATCH-1D to obtain protein secondary structure and RSA information.
+If you want to predict, please prepare the protein sequence file, the corresponding secondary structure file, and the RSA file of the sequence to be predicted, and then enter the following command in the terminal to get the result. You can use [SCRATCH-1D](http://www.nohup.cc/article/84/) to obtain protein secondary structure and RSA information.
 ```python
 python predict.py -a  test.fasta -s  test.ss8 -r test.acc20 -o output
 ```
