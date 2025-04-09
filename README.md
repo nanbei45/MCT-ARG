@@ -11,7 +11,7 @@ python predict.py -a  test.fasta -s  test.ss8 -r test.acc20 -o output
 ```
 <br>
 If you want to use MCT-ARG to train your own dataset, please prepare the protein sequence file, the corresponding secondary structure file and the RSA file first, and then enter the following command in the terminal to get the trained model. The trained model will be saved in the ./model directory file.
-```bash
+```Python
 python train.py -a  input.fasta -s  input.ss8 -r input.acc20
 ```
 
