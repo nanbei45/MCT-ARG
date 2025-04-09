@@ -4,6 +4,7 @@ We propose an innovative multi-channel Transformer-based framework for ARG predi
 ### Configure the environment
 Please use the following command to configure the environment.
 ```python
+git clone https://github.com/nanbei45/MCT-ARG
 conda create -n mct_arg python=3.9
 conda activate mct_arg
 pip install -r requirements.txt
