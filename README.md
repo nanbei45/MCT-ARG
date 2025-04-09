@@ -14,3 +14,4 @@ If you want to use MCT-ARG to train your own dataset, please prepare the protein
 ```python
 python train.py -a  input.fasta -s  input.ss8 -r input.acc20
 ```
+
