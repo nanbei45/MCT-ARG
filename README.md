@@ -20,7 +20,7 @@ If you want to use MCT-ARG to train your own dataset, please prepare the protein
 ```Python
 python train.py -a  input.fasta -s  input.ss8 -r input.acc20
 ```
-### Train
+### extract attention score
 If you want to get the score for each site that the model paid attention to, please enter the following command in the terminal to get the result.
 ```python
 python predict.py -a  test.fasta -s  test.ss8 -r test.acc20 -o output
