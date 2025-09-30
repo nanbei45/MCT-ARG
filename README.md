@@ -23,7 +23,7 @@ python train.py -a  input.fasta -s  input.ss8 -r input.acc20
 ### extract attention score
 If you want to get the score for each site that the model paid attention to, please enter the following command in the terminal to get the result.
 ```python
-python predict.py -a  test.fasta -s  test.ss8 -r test.acc20 -o output
+python extract_attention_embedding.py -a  test.fasta -s  test.ss8 -r test.acc20 -o output
 ```
 
 
