@@ -147,15 +147,57 @@ def predict_and_save(model, dataset, output_dir, batch_size=32):
 
     results.to_csv(os.path.join(output_dir, "predictions.csv"), index=False)
 
+import subprocess
+def run_diamond(query_fasta, output_file, db_path):
+    """
+    Run DIAMOND blastp to compare predicted ARG proteins against ARG database.
+    """
+    subprocess.run([
+        "diamond", "blastp",
+        "-d", str(db_path),
+        "-q", str(query_fasta),
+        "-o", str(output_file),
+        "--outfmt", "6",
+        "qseqid", "sseqid", "pident", "length",
+        "mismatch", "gapopen", "qstart", "qend",
+        "sstart", "send", "evalue", "bitscore",
+        "--query-cover", "80",
+        "--subject-cover", "80",
+        "--more-sensitive",
+        "--max-target-seqs", "1",
+        "--evalue", "1e-10"
+    ], check=True)
+
+    print(f"{query_fasta} Alignment completed！")
+
+
+def filter_by_identity(diamond_output, out_dir):
+    """
+    Filter DIAMOND results by identity threshold and save to CSV.
+    """
+    df = pd.read_csv(diamond_output, sep="\t", header=None)
+    df.columns = ["qseqid", "sseqid", "pident", "length", "mismatch",
+                  "gapopen", "qstart", "qend", "sstart", "send",
+                  "evalue", "bitscore"]
+
+    high_conf = df[df["pident"] >= 80]
+    candidate = df[(df["pident"] >= 60) & (df["pident"] < 80)]
+
+    high_conf.to_csv(os.path.join(out_dir, "high_confidence.csv"), index=False)
+    candidate.to_csv(os.path.join(out_dir, "candidate.csv"), index=False)
+
+    print(f"Identityscreening completed, high confidence {len(high_conf)} entries, candidate {len(candidate)} entries")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="ARGs预测脚本")
-    parser.add_argument("-a","--aa_file",  default="test/test.fasta",help="氨基酸序列文件路径")
-    parser.add_argument("-s","--ss_file", default="test/test.ss8", help="二级结构文件路径")
-    parser.add_argument("-r","--rsa_file",  default="test/test.acc20",help="RSA文件路径")
+    parser = argparse.ArgumentParser(description="ARGs prediction script")
+    parser.add_argument("-a", "--aa_file", default="test/test.fasta", help="Amino acid sequence file path")
+    parser.add_argument("-s", "--ss_file", default="test/test.ss8", help="Secondary structure file path")
+    parser.add_argument("-r", "--rsa_file", default="test/test.acc20", help="RSA file path")
     parser.add_argument("--model_path", default="model/BinaryClassificationModel/best_global_model.pth", help="model_path")
-    parser.add_argument("-o","--output_dir", default="output", help="out_dir")
+    parser.add_argument("-o", "--output_dir", default="output", help="out_dir")
     parser.add_argument("--batch_size", type=int, default=32, help="batch_size")
+    parser.add_argument("--filter_by_identity", action="store_true", help="Whether to enable DIAMOND identity rate screening")
+    parser.add_argument("--db_path", default="MCT-ARG-DB", help="MCT-ARG-DB path")
     args = parser.parse_args()
 
     aa_seqs, ss_seqs, rsa_seqs = parse_prediction_data(args.aa_file, args.ss_file, args.rsa_file)
@@ -164,3 +206,9 @@ if __name__ == "__main__":
 
     predict_and_save(model, dataset, args.output_dir, args.batch_size)
     print(f"Prediction completed! Results saved to {args.output_dir}")
+
+    # If identity rate filtering is turned on
+    if args.filter_by_identity:
+        diamond_out = os.path.join(args.output_dir, "diamond_results.tsv")
+        run_diamond(args.aa_file, diamond_out, args.db_path)
+        filter_by_identity(diamond_out, args.output_dir)
